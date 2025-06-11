@@ -1,0 +1,23 @@
+import pandas as pd
+import math
+
+# Load your dataset
+df = pd.read_csv("/logs.csv")
+
+# Define server capacity (HPE ProLiant DL380 Gen10)
+CPU_CAPACITY = 16000   # in millicores (32 cores)
+MEM_CAPACITY = 131072  # in MiB (512 GB)
+
+# Calculate number of servers needed for each pod
+def calculate_servers_needed(row):
+    cpu_required = row['cpu_milli']
+    mem_required = row['memory_mib']
+    return max(math.ceil(cpu_required / CPU_CAPACITY),
+               math.ceil(mem_required / MEM_CAPACITY))
+
+df['servers_needed'] = df.apply(calculate_servers_needed, axis=1)
+
+# Save the new dataset
+df.to_csv("pods_with_servers_needed.csv", index=False)
+
+print("✅ Target column 'servers_needed' added and saved to 'pods_with_servers_needed.csv'")
